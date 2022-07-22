@@ -71,8 +71,7 @@ export default defineComponent({
     },
     getPopulation() {
       var data: PopulationData;
-      this.selectedPrefs.forEach((prefCode) => {
-        console.log(prefCode);
+      this.selectedPrefs.forEach((prefCode: number) => {
         axios
           .get(`${API_URL}api/v1/population/composition/perYear`, {
             params: {
@@ -91,10 +90,14 @@ export default defineComponent({
             console.error(e);
           });
       });
+      Object.keys(this.populationData)
+        .map(Number)
+        .forEach((prefCode) => {
+          if (!this.selectedPrefs.includes(prefCode as never)) {
+            delete this.populationData[prefCode];
+          }
+        });
       console.log(this.populationData);
-    },
-    testFunc() {
-      console.log(this.selectedPrefs);
     },
   },
 });
