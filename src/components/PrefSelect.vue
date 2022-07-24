@@ -9,7 +9,6 @@
         type="checkbox"
         :value="pref.prefCode"
         v-model="selectedPrefs"
-        v-on:change="getPopulation()"
       />
       <label :for="'pref' + i">{{ pref.prefName }}</label>
     </div>
@@ -19,25 +18,12 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import axios from "../plugins/axios";
+import { PrefData, PopulationData } from "@/common/object";
 
 const API_URL = "https://opendata.resas-portal.go.jp/";
 
-interface PrefData {
-  result: {
-    prefCode: number;
-    prefName: string;
-  };
-}
-
-interface PopulationData {
-  boundaryYear: number;
-  data: {
-    label: string;
-    data: [];
-  };
-}
-
 let prefData: PrefData;
+let selectedPrefs: number[] = [];
 let populationData: PopulationData[] = [];
 
 export default defineComponent({
@@ -45,13 +31,21 @@ export default defineComponent({
   data() {
     return {
       prefData: prefData,
-      selectedPrefs: [],
+      selectedPrefs: selectedPrefs,
       populationData: populationData,
     };
   },
   created() {
     this.getPrefs();
   },
+  watch: {
+    selectedPrefs: {
+      handler: function (newData: number[]) {
+        this.getPopulation();
+      },
+    },
+  },
+  emit: ["receive"],
   methods: {
     getPrefs(): PrefData {
       axios
@@ -80,24 +74,32 @@ export default defineComponent({
             },
           })
           .then((response) => {
+            console.log("ajax done");
             this.populationData[prefCode] = Object.assign(
               {},
               data,
               response.data.result
             );
+            Object.keys(this.populationData)
+              .map(Number)
+              .forEach((prefCode) => {
+                console.log("inside loop");
+                if (!this.selectedPrefs.includes(prefCode as never)) {
+                  delete this.populationData[prefCode];
+                }
+              });
+            if (
+              this.selectedPrefs.indexOf(prefCode) + 1 ==
+              this.selectedPrefs.length
+            ) {
+              this.$emit("receive", this.populationData);
+              console.log("emmited");
+            }
           })
           .catch((e) => {
             console.error(e);
           });
       });
-      Object.keys(this.populationData)
-        .map(Number)
-        .forEach((prefCode) => {
-          if (!this.selectedPrefs.includes(prefCode as never)) {
-            delete this.populationData[prefCode];
-          }
-        });
-      console.log(this.populationData);
     },
   },
 });

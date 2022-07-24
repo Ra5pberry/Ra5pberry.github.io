@@ -1,18 +1,48 @@
 <template>
   <div id="app">
-    <div class="pref-select">
-      <PrefSelect />
-    </div>
+    <PrefSelect ref="pref-select" v-on:receive="sendData" />
+    <PopulationGraph :graphData="selectedData" />
   </div>
 </template>
 
 <script lang="ts">
 import PrefSelect from "./components/PrefSelect.vue";
+import PopulationGraph from "./components/PopulationGraph.vue";
+import { defineComponent } from "vue";
+import { PopulationData } from "./common/object";
 
-export default {
+export default defineComponent({
   name: "app",
-  components: { PrefSelect },
-};
+  data() {
+    return {
+      selectedData: [
+        {
+          boundaryYear: 9999,
+          data: {
+            label: "label",
+            data: [
+              {
+                year: 9999,
+                value: 9999,
+              },
+            ],
+          },
+        },
+      ],
+    };
+  },
+  components: {
+    PrefSelect,
+    PopulationGraph,
+  },
+  prop: ["chartData"],
+  methods: {
+    sendData(val: PopulationData[]) {
+      console.log("sending");
+      this.selectedData = val;
+    },
+  },
+});
 </script>
 
 <style lang="scss">
