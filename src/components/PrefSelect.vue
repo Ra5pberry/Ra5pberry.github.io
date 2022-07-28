@@ -11,7 +11,9 @@
         :value="pref.prefCode"
         @change.stop="sendPrefs()"
       />
-      <label :for="'pref' + i">{{ pref.prefName }}</label>
+      <label :for="'pref' + i" :id="'label' + pref.prefCode">{{
+        pref.prefName
+      }}</label>
     </div>
   </div>
 </template>
@@ -65,7 +67,22 @@ export default defineComponent({
         });
     },
     sendPrefs() {
-      this.$emit("emmited-selected-prefs", this.selectedPrefs);
+      let selectedPrefData = [
+        {
+          prefCode: 0,
+          prefName: "",
+        },
+      ];
+      selectedPrefData.pop();
+      this.selectedPrefs.forEach((prefCode) => {
+        let pref = {
+          prefCode: prefCode,
+          prefName: document.getElementById(`label${prefCode}`)?.innerHTML,
+        };
+        selectedPrefData.push(pref as any);
+      });
+      console.log(selectedPrefData);
+      this.$emit("emmited-selected-prefs", selectedPrefData);
     },
   },
 });
