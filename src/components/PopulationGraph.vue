@@ -5,13 +5,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, computed, ref, onMounted } from "vue";
-import { ChartDataSet, GraphData } from "@/common/object";
-import axios from "../plugins/axios";
+import { defineComponent, PropType } from "vue";
+import { ChartDataSet } from "@/common/object";
 
 import Chart, { ChartItem } from "chart.js/auto";
 
-const API_URL = "https://opendata.resas-portal.go.jp/";
 const labels: string[] = [
   "1960",
   "1965",
@@ -39,22 +37,10 @@ export default defineComponent({
     selectedPopulationData: {
       type: Array as PropType<Array<ChartDataSet>>,
     },
-    data: {
-      type: Array,
-      default: () => [],
-    },
-  },
-  data(props) {
-    console.log(this.populationData);
-    return {
-      showChart: true,
-    };
   },
   watch: {
     selectedPopulationData: {
       handler: function () {
-        console.log("changed");
-
         let datasets = [
           {
             label: "",
@@ -65,7 +51,6 @@ export default defineComponent({
         datasets.pop();
 
         this.selectedPopulationData?.forEach((data) => {
-          // console.log(data.data);
           let dataset = {
             label: data.label,
             data: data.data,

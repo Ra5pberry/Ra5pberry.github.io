@@ -54,7 +54,7 @@ export default defineComponent({
   created() {
     this.getPrefs();
   },
-  emits: ["emmited-selected-prefs", "emmitedPrefsList"],
+  emits: ["emmited-selected-prefs"],
   methods: {
     getPrefs() {
       axios
@@ -65,7 +65,6 @@ export default defineComponent({
             this.prefData,
             response.data.result
           );
-          this.$emit("emmitedPrefsList", this.prefData);
         })
         .catch((e) => {
           console.error(e);
