@@ -15,8 +15,6 @@
     "types": [
       "webpack-env",
       "jest",
-      "@nuxt/types",
-      "@nuxtjs/axios"
     ],
     "paths": {
       "@/*": [
@@ -25,6 +23,8 @@
     },
     "lib": [
       "esnext",
+      "es5",
+      "es6",
       "dom",
       "dom.iterable",
       "scripthost"
