@@ -27,3 +27,15 @@ export class Datasets implements ChartDataSet {
     this.data = data;
   }
 }
+
+export interface selectedPref {
+  code: number;
+  name: string;
+}
+
+export class selectedPrefData implements selectedPref {
+  constructor(public code: number, public name: string) {
+    this.code = code;
+    this.name = name;
+  }
+}

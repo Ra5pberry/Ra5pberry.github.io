@@ -66,7 +66,12 @@ export default defineComponent({
 
         this.selectedPopulationData?.forEach((data) => {
           // console.log(data.data);
-          let dataset = { label: data.label, data: data.data };
+          let dataset = {
+            label: data.label,
+            data: data.data,
+            borderColor: `rgb(${Math.random() * 255}, ${Math.random() * 255},
+                          ${Math.random() * 255})`,
+          };
           datasets.push(dataset);
         });
 
