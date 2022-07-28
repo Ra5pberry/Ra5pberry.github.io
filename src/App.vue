@@ -1,15 +1,25 @@
 <template>
-  <div id="app">
-    <PrefSelect @emmited-selected-prefs="receivedSelectedPrefs = $event" />
-    <button @click="getPopulation">更新</button>
-    <PopulationGraph ref="graph" :selected-population-data="populationData" />
+  <div id="app" class="wrapper">
+    <div class="app-header">
+      <HeaderComponent />
+    </div>
+    <div class="select">
+      <PrefSelect @emmited-selected-prefs="receivedSelectedPrefs = $event" />
+    </div>
+    <div class="update-btn">
+      <a class="update-btn" @click="getPopulation">更新</a>
+    </div>
+    <div class="graph">
+      <PopulationGraph ref="graph" :selected-population-data="populationData" />
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent } from "vue";
 import PrefSelect from "./components/PrefSelect.vue";
 import PopulationGraph from "./components/PopulationGraph.vue";
+import HeaderComponent from "./components/common/HeaderComponent.vue";
 
 import axios from "./plugins/axios";
 
@@ -22,6 +32,7 @@ export default defineComponent({
   components: {
     PrefSelect,
     PopulationGraph,
+    HeaderComponent,
   },
   data() {
     return {
@@ -84,5 +95,49 @@ export default defineComponent({
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+
+div.update-btn {
+  width: 100%;
+  cursor: pointer;
+  padding: 0;
+}
+
+a.update-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 auto;
+  padding: 1em 2em;
+  width: 300px;
+  color: aliceblue;
+  font-size: 18px;
+  font-weight: 700;
+  background-color: darkcyan;
+  border-radius: 50vh;
+}
+
+.update-btn a::after {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-top: 3px solid aliceblue;
+  border-right: 3px solid aliceblue;
+  transform: rotate(135deg);
+}
+
+.update-btn a:hover {
+  text-decoration: none;
+  background-color: cadetblue;
+}
+
+.wrapper {
+  display: grid;
+  grid-template-columns: auto;
+  gap: 10px;
+}
+
+.select {
+  display: grid;
 }
 </style>
