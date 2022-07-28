@@ -7,10 +7,12 @@
 </template>
 
 <script lang="ts">
+import { defineComponent, ref } from "vue";
 import PrefSelect from "./components/PrefSelect.vue";
 import PopulationGraph from "./components/PopulationGraph.vue";
-import { defineComponent, ref } from "vue";
+
 import axios from "./plugins/axios";
+
 import { GraphData, ChartDataSet } from "@/common/object";
 
 const API_URL = "https://opendata.resas-portal.go.jp/";
@@ -21,16 +23,14 @@ export default defineComponent({
     PrefSelect,
     PopulationGraph,
   },
-  setup() {
-    const graph = ref(null);
-
-    return {
-      graph,
-    };
-  },
   data() {
     return {
-      receivedSelectedPrefs: new Array<number>(),
+      receivedSelectedPrefs: [
+        {
+          prefCode: 0,
+          prefName: "",
+        },
+      ],
       populationData: {
         label: "",
         data: [0],
@@ -43,13 +43,13 @@ export default defineComponent({
     async getPopulation() {
       let datasets: ChartDataSet[] = [{ label: "", data: [] }];
       datasets.pop();
-      for (let prefCode of this.receivedSelectedPrefs) {
+      for (let pref of this.receivedSelectedPrefs) {
         var dataset = { label: "", data: [0] };
-        dataset.label = prefCode.toString();
+        dataset.label = pref.prefName;
         await axios
           .get(`${API_URL}api/v1/population/composition/perYear`, {
             params: {
-              prefCode: prefCode,
+              prefCode: pref.prefCode,
               cityCode: "-",
             },
           })
