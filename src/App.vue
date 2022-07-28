@@ -1,45 +1,76 @@
 <template>
   <div id="app">
-    <PrefSelect ref="pref-select" v-on:receive="sendData" />
-    <PopulationGraph :graphData="selectedData" />
+    <PrefSelect @emmited-selected-prefs="receivedSelectedPrefs = $event" />
+    <button @click="getPopulation">更新</button>
+    <PopulationGraph ref="graph" :selected-population-data="populationData" />
   </div>
 </template>
 
 <script lang="ts">
 import PrefSelect from "./components/PrefSelect.vue";
 import PopulationGraph from "./components/PopulationGraph.vue";
-import { defineComponent } from "vue";
-import { PopulationData } from "./common/object";
+import { defineComponent, ref } from "vue";
+import axios from "./plugins/axios";
+import { GraphData, ChartDataSet } from "@/common/object";
+
+const API_URL = "https://opendata.resas-portal.go.jp/";
 
 export default defineComponent({
-  name: "app",
-  data() {
-    return {
-      selectedData: [
-        {
-          boundaryYear: 9999,
-          data: {
-            label: "label",
-            data: [
-              {
-                year: 9999,
-                value: 9999,
-              },
-            ],
-          },
-        },
-      ],
-    };
-  },
+  name: "App",
   components: {
     PrefSelect,
     PopulationGraph,
   },
+  setup() {
+    const graph = ref(null);
+
+    return {
+      graph,
+    };
+  },
+  data() {
+    return {
+      receivedSelectedPrefs: new Array<number>(),
+      populationData: {
+        label: "",
+        data: [0],
+      },
+      resetFlg: false,
+    };
+  },
   prop: ["chartData"],
   methods: {
-    sendData(val: PopulationData[]) {
-      console.log("sending");
-      this.selectedData = val;
+    async getPopulation() {
+      let datasets: ChartDataSet[] = [{ label: "", data: [] }];
+      datasets.pop();
+      for (let prefCode of this.receivedSelectedPrefs) {
+        var dataset = { label: "", data: [0] };
+        dataset.label = prefCode.toString();
+        await axios
+          .get(`${API_URL}api/v1/population/composition/perYear`, {
+            params: {
+              prefCode: prefCode,
+              cityCode: "-",
+            },
+          })
+          .then((response) => {
+            var dataArr: number[] = [];
+            for (const [key, data] of Object.entries(response.data.result)) {
+              if (Array.isArray(data)) {
+                data[0].data.forEach((data: GraphData) => {
+                  dataArr.push(data.value);
+                });
+              }
+            }
+            dataset.data = dataArr;
+            console.log(dataset.data);
+            datasets[Object.keys(datasets).length] = dataset;
+          })
+          .catch((e) => {
+            console.error(e);
+          });
+      }
+      this.populationData = datasets as any;
     },
   },
 });

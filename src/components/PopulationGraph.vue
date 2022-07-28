@@ -1,45 +1,18 @@
 <template>
-  <div class="population-graph">
-    <Line
-      :chart-options="chartOptions"
-      :chart-data="chartData"
-      :chart-id="chartId"
-      :dataset-id-key="datasetIdKey"
-      :css-classes="cssClasses"
-      :styles="styles"
-      :width="width"
-      :height="height"
-    />
+  <div id="population-graph">
+    <canvas id="myChart" width="400" height="400"></canvas>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "vue";
-import { Line } from "vue-chartjs";
-import {
-  Chart as ChartJS,
-  Title,
-  Tooltip,
-  Legend,
-  CategoryScale,
-  LinearScale,
-  LineElement,
-  PluginOptionsByType,
-  PointElement,
-} from "chart.js";
-import { GraphData, PopulationData } from "@/common/object";
+import { defineComponent, PropType, computed, ref, onMounted } from "vue";
+import { ChartDataSet, GraphData } from "@/common/object";
+import axios from "../plugins/axios";
 
-ChartJS.register(
-  Title,
-  Tooltip,
-  Legend,
-  LineElement,
-  CategoryScale,
-  LinearScale,
-  PointElement
-);
+import Chart, { ChartItem } from "chart.js/auto";
 
-let xAxisLabel: string[] = [
+const API_URL = "https://opendata.resas-portal.go.jp/";
+const labels: string[] = [
   "1960",
   "1965",
   "1970",
@@ -62,120 +35,65 @@ let xAxisLabel: string[] = [
 
 export default defineComponent({
   name: "PopulationGraph",
-  components: { Line },
   props: {
-    chartId: {
-      type: String,
-      default: "line-chart",
+    selectedPopulationData: {
+      type: Array as PropType<Array<ChartDataSet>>,
     },
-    datasetIdKey: {
-      type: String,
-      default: "label",
-    },
-    width: {
-      type: Number,
-      default: 400,
-    },
-    height: {
-      type: Number,
-      default: 400,
-    },
-    cssClasses: {
-      type: String,
-      default: "",
-    },
-    styles: {
-      type: Object as PropType<Partial<CSSStyleDeclaration>>,
-    },
-    graphData: {
+    data: {
       type: Array,
-      default: () => [
-        {
-          boundaryYear: 0,
-          data: {
-            label: "label",
-            data: [
-              {
-                year: 9999,
-                value: 9999,
-              },
-            ],
-          },
-        },
-      ],
+      default: () => [],
     },
   },
   data(props) {
-    if (props.graphData.length > 0) {
-      // console.log("exists");
-    }
-
+    console.log(this.populationData);
     return {
-      chartData: {
-        labels: xAxisLabel,
-        datasets: [
-          {
-            label: "",
-            data: [0, 0, 0],
-          },
-        ],
-      },
-      chartOptions: {
-        responsive: true,
-      },
+      showChart: true,
     };
   },
   watch: {
-    graphData: {
-      handler: function (newData: PopulationData[], oldData: PopulationData[]) {
-        console.log("changed!");
-        // this.chartData.datasets.forEach((dataset) => {
-        //   dataset.data.pop();
-        // });
-        if (newData != null) {
-          for (const [key, val] of Object.entries(newData)) {
-            console.log(`key is ${key}`);
-            for (const [key, data] of Object.entries(val)) {
-              // console.log(data);
-              if (Array.isArray(data)) {
-                var dataArr: number[] = [];
-                data[0].data.forEach((data: GraphData) => {
-                  dataArr.push(data.value);
-                  // this.chartData.datasets.forEach((dataset) => {
-                  //   dataset.data.push(data.value);
-                  //   console.log(dataset);
-                  //   console.log(data.value);
-                  // });
-                });
-                console.log(dataArr);
-              }
-            }
-          }
+    selectedPopulationData: {
+      handler: function () {
+        console.log("changed");
+
+        let datasets = [
+          {
+            label: "",
+            data: [0],
+          },
+        ];
+
+        datasets.pop();
+
+        this.selectedPopulationData?.forEach((data) => {
+          // console.log(data.data);
+          let dataset = { label: data.label, data: data.data };
+          datasets.push(dataset);
+        });
+
+        let graphArea = document.getElementById("population-graph");
+        while (graphArea?.lastChild) {
+          graphArea.removeChild(graphArea.lastChild);
         }
+        var newCanvas = document.createElement("canvas");
+        newCanvas.setAttribute("id", "myChart");
+        graphArea?.appendChild(newCanvas);
+
+        let ctx = document.getElementById("myChart");
+        new Chart(ctx as ChartItem, {
+          type: "line",
+          data: {
+            labels: labels,
+            datasets: datasets,
+          },
+        });
       },
-      deep: true,
-    },
-  },
-  methods: {
-    dataChanged(data: PopulationData) {
-      console.log(data);
-      this.chartData.datasets.forEach((dataset) => {
-        dataset.data.pop;
-      });
-      for (const [key, val] of Object.entries(data)) {
-        console.log(`key is ${key}`);
-        console.log(val as PopulationData);
-        for (const [key, data] of Object.entries(val)) {
-          if (Array.isArray(data)) {
-            data[0].data.forEach((data: GraphData) => {
-              this.chartData.datasets.forEach((dataset) => {
-                dataset.data.push(data.value);
-              });
-            });
-          }
-        }
-      }
     },
   },
 });
 </script>
+
+<style>
+.vue-highcharts {
+  width: 100%;
+}
+</style>
