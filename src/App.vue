@@ -80,7 +80,7 @@ export default defineComponent({
           .catch((e) => {
             console.error(e);
           });
-      }
+
       this.populationData = datasets as any;
     },
   },

@@ -50,7 +50,7 @@ export default defineComponent({
 
         datasets.pop();
 
-        this.selectedPopulationData?.forEach((data) => {
+        this.wrongSelectedPopulationData?.forEach((data) => {
           let dataset = {
             label: data.label,
             data: data.data,
