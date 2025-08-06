@@ -46,11 +46,11 @@ export default defineComponent({
             label: "",
             data: [0],
           },
-        ];
+        ]
 
         datasets.pop();
 
-        this.wrongSelectedPopulationData?.forEach((data) => {
+        this.wrongSelectedPopulationData?.forEach(() => {
           let dataset = {
             label: data.label,
             data: data.data,
